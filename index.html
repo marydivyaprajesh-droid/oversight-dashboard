@@ -1,112 +1,133 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Digital Oversight Dashboard</title>
+  <title>Boeing Digital Oversight Dashboard</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0; padding: 0;
       min-height: 100vh;
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(120deg, #f5f6fa 55%, #b3c7e6 100%);
-      position: relative;
+      font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(120deg, #f5f6fa 56%, #e3effd 90%, #0246a7 100%);
       overflow-x: hidden;
     }
     .logo-bg {
       position: fixed;
-      top: -60px; right: -100px; z-index: 0;
-      width: 55vw; max-width: 700px;
-      opacity: 0.08;
+      top: -60px; right: -120px; z-index: 0;
+      width: 50vw; max-width: 700px;
+      opacity: 0.09;
       pointer-events: none;
       user-select: none;
     }
     .container {
       position: relative;
-      max-width: 1000px; margin: 50px auto;
+      max-width: 1050px; margin: 45px auto 30px auto;
       background: #fff;
       border-radius: 18px;
-      box-shadow: 0 8px 40px #2264a835, 0 1.5px 8px #ccc8;
-      padding: 40px 32px 32px 32px;
+      box-shadow: 0 8px 40px #2264a835, 0 2px 14px #0246a70c;
+      padding: 42px 38px 34px 38px;
       z-index: 1;
     }
     h1 {
       text-align: center;
-      font-size: 2.6em;
-      color: #134894;
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      margin-top: 10px;
+      font-size: 2.9em;
+      color: #0246a7;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      margin-top: 2px;
     }
     .subtitle {
       text-align: center;
-      color: #34495e;
-      font-size: 1.19em;
+      color: #255686;
+      font-size: 1.25em;
       margin-bottom: 18px;
       font-weight: 400;
+      letter-spacing: .05em;
     }
     .metrics-row {
       display: flex;
       justify-content: space-evenly;
-      gap: 12px;
-      margin: 32px 0 18px 0;
+      gap: 15px;
+      margin: 40px 0 20px 0;
+      flex-wrap: wrap;
     }
     .metric-card {
-      background: linear-gradient(105deg, #eaf0fb 70%, #c7d6eb 100%);
+      background: linear-gradient(107deg, #e3effd 70%, #bfd5ee 100%);
       border-radius: 13px;
-      box-shadow: 0 1.5px 8px #c0d3f3c6;
-      padding: 22px 28px;
-      flex: 1;
+      box-shadow: 0 2px 10px #b3d3ef25;
+      padding: 26px 28px;
+      flex: 1 1 220px;
       text-align: center;
-      font-size: 1.15em;
-      color: #234765;
-      font-weight: 500;
+      font-size: 1.13em;
+      color: #1450a6;
+      font-weight: 600;
+      min-width: 200px;
+      margin: 0 3px;
+      transition: box-shadow .13s, transform .13s;
+    }
+    .metric-card:hover {
+      box-shadow: 0 6px 28px #1450a620;
+      transform: scale(1.025);
     }
     .chart-title {
-      color: #144d79;
-      margin: 18px 0 12px 0;
-      font-size: 1.2em;
+      color: #0246a7;
+      margin: 19px 0 14px 0;
+      font-size: 1.13em;
       text-align: left;
-      font-weight: 600;
+      font-weight: 700;
+      letter-spacing: .5px;
     }
     .charts-flex {
       display: flex;
-      gap: 30px;
-      margin-bottom: 30px;
+      gap: 36px;
+      margin-bottom: 40px;
       flex-wrap: wrap;
     }
     .chart-card {
-      background: rgba(235,244,255,0.82);
+      background: rgba(233,244,255,0.87);
       border-radius: 13px;
-      box-shadow: 0 1.5px 8px #b2d0f7a0;
-      padding: 20px;
+      box-shadow: 0 1.5px 8px #b2ccefc2;
+      padding: 21px;
       flex: 1 1 350px;
-      min-width: 340px;
-      max-width: 470px;
+      min-width: 320px;
+      max-width: 500px;
     }
     .recommend-box {
-      background: linear-gradient(87deg, #e8f0fa 80%, #d6e2fa 100%);
+      background: linear-gradient(100deg, #e5f2fc 88%, #c7dbf4 100%);
       border-radius: 13px;
-      padding: 25px;
-      margin-top: 24px;
-      box-shadow: 0 2px 11px #bbcaf17a;
-      color: #205079;
+      padding: 26px 22px 12px 22px;
+      margin-top: 28px;
+      box-shadow: 0 2px 14px #b7c8ec4d;
+      color: #195ba6;
       font-size: 1.1em;
-      font-weight: 450;
+      font-weight: 470;
+    }
+    .boeing-footer {
+      text-align: center;
+      color: #5f7caa;
+      font-size: 0.92em;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      letter-spacing: .02em;
+      padding-top: 12px;
+      border-top: 2px solid #d5e2f5;
     }
     @media (max-width: 900px) {
       .charts-flex { flex-direction: column; }
       .metrics-row { flex-direction: column; }
-      .metric-card { margin-bottom: 10px; }
+      .metric-card { margin-bottom: 14px; }
+      .container { padding: 16px 8px 16px 8px;}
     }
   </style>
 </head>
 <body>
   <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/Boeing_full_logo.svg" class="logo-bg" alt="Boeing watermark" />
   <div class="container">
-    <h1>Digital Oversight Dashboard</h1>
-    <div class="subtitle">Forecast & Risk Overview</div>
-    <hr style='border:1px solid #b6c2d1; width:55%; margin:auto;'>
+    <h1>Boeing Digital Oversight Dashboard</h1>
+    <div class="subtitle">Forecast & Risk Overview • Blue & White Boeing Theme</div>
+    <hr style='border:1px solid #b6c2d1; width:53%; margin:auto;'>
 
     <!-- KPI Metrics -->
     <div class="metrics-row" id="metrics"></div>
@@ -123,19 +144,22 @@
     </div>
 
     <div class="recommend-box" id="recommendations"></div>
+    <div class="boeing-footer">
+      <strong>Boeing Digital Oversight • 2025</strong> &mdash; Powered by Analytics & Dashboards<br>
+      Theme: Blue & White • Boeing Palette
+    </div>
   </div>
   <script>
-    // Example data mimicking your CSV for demo
+    // Example business data
     var data = [
       {Year:2022, Risk_Level:'Low', Predicted_Gap:100, Orders:50, PlannedOutput:200, ActualOutput:190, Backlog:15},
       {Year:2023, Risk_Level:'Medium', Predicted_Gap:350, Orders:70, PlannedOutput:220, ActualOutput:210, Backlog:55},
       {Year:2024, Risk_Level:'High', Predicted_Gap:440, Orders:60, PlannedOutput:250, ActualOutput:210, Backlog:90},
       {Year:2025, Risk_Level:'Medium', Predicted_Gap:250, Orders:55, PlannedOutput:260, ActualOutput:230, Backlog:85}
     ];
-    // Risk mapping
     var riskMapping = {Low:1, Medium:2, High:3};
     data.forEach(row => row.Risk_Score = riskMapping[row.Risk_Level]);
-    // KPI Metrics
+    // Metrics
     var totalGap = data.reduce((sum, r) => sum+r.Predicted_Gap,0);
     var maxRisk = Math.max(...data.map(r=>r.Risk_Score));
     var yearHighRisk = data[data.findIndex(r=>r.Risk_Score===maxRisk)].Year;
@@ -146,25 +170,26 @@
       <div class="metric-card"><div>Year with Highest Risk</div><b>${yearHighRisk}</b></div>
       <div class="metric-card"><div>Total Orders</div><b>${totalOrders}</b></div>
     `;
-    // Forecast Gap Chart
+    // Chart 1: Forecasted Gap
     Plotly.newPlot('gap-chart', [{
       x: data.map(r=>r.Year),
       y: data.map(r=>r.Predicted_Gap),
-      type:'scatter', mode:'lines+markers', marker:{color:'#1759ab',size:9},
+      type:'scatter', mode:'lines+markers',
+      marker:{color:'#1450a6',size:10},
+      line:{color:'#1450a6',width:5},
       text: data.map(r=>`${r.Risk_Level}`), name:'Predicted Gap'
-    }], {title:'', paper_bgcolor:'#ebf4ff', plot_bgcolor:'#ebf4ff', margin:{l:50,r:35,t:10,b:45}, template:'plotly_white'});
-    // Risk Score Bar Chart
+    }], {title:'', paper_bgcolor:'#e5f2fc', plot_bgcolor:'#e5f2fc', margin:{l:45,r:25,t:10,b:40}, template:'plotly_white'});
+    // Chart 2: Risk Score bar
     Plotly.newPlot('risk-chart', [{
       x: data.map(r=>r.Year),
       y: data.map(r=>r.Risk_Score),
-      type:'bar',
-      text: data.map(r=>r.Risk_Score), textposition:'auto',
+      type:'bar', text: data.map(r=>r.Risk_Score), textposition:'auto',
       marker:{color:data.map(r=>{
-        if(r.Risk_Level==='High')return '#c0392b';
-        if(r.Risk_Level==='Medium')return '#f39c12';
-        return '#2ecc71'})},
+        if(r.Risk_Level==='High')return '#1f336a';
+        if(r.Risk_Level==='Medium')return '#43a5f4';
+        return '#cde1fa'})},
       name:'Risk Score'
-    }], {title:'', paper_bgcolor:'#ebf4ff', plot_bgcolor:'#ebf4ff', margin:{l:50,r:30,t:10,b:45}, template:'plotly_white'});
+    }], {title:'', paper_bgcolor:'#e5f2fc', plot_bgcolor:'#e5f2fc', margin:{l:40,r:20,t:10,b:40}, template:'plotly_white'});
     // Recommendations
     var highGapYears = data.filter(r=>r.Predicted_Gap>300).map(r=>r.Year);
     var rec = '';
@@ -179,4 +204,3 @@
   </script>
 </body>
 </html>
-
