@@ -1,39 +1,130 @@
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>Digital Oversight Dashboard</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     body {
-      font-family: sans-serif;
-      background: linear-gradient(to bottom right, #f5f6fa, #ffffff);
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
+      min-height: 100vh;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      /* Boeing Gradient Colors */
+      background: linear-gradient(120deg, #f5f6fa 55%, #b3c7e6 100%);
+      position: relative;
+      overflow-x: hidden;
     }
-    #logo {
+    /* Boeing logo watermark */
+    .logo-bg {
       position: fixed;
-      top: 0; right: 0; opacity: 0.08; width: 20vw; z-index: 0;
+      top: -60px; right: -100px; z-index: 0;
+      width: 55vw; max-width: 700px;
+      opacity: 0.08;
+      pointer-events: none;
+      user-select: none;
     }
-    .container { max-width: 900px; margin: 40px auto; padding: 24px; background: #fff; border-radius: 12px; box-shadow: 0 6px 32px #aaa2; }
-    h1 { color: #0a3d62; text-align: center; }
-    hr { border: 1px solid #dcdde1; width:50%; margin:auto; }
+    .container {
+      position: relative;
+      max-width: 1000px; margin: 50px auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 40px #2264a835, 0 1.5px 8px #ccc8;
+      padding: 40px 32px 32px 32px;
+      z-index: 1;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.6em;
+      color: #134894;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      margin-top: 10px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #34495e;
+      font-size: 1.19em;
+      margin-bottom: 18px;
+      font-weight: 400;
+    }
+    .metrics-row {
+      display: flex;
+      justify-content: space-evenly;
+      gap: 12px;
+      margin: 32px 0 18px 0;
+    }
+    .metric-card {
+      background: linear-gradient(105deg, #eaf0fb 70%, #c7d6eb 100%);
+      border-radius: 13px;
+      box-shadow: 0 1.5px 8px #c0d3f3c6;
+      padding: 22px 28px;
+      flex: 1;
+      text-align: center;
+      font-size: 1.15em;
+      color: #234765;
+      font-weight: 500;
+    }
+    .chart-title {
+      color: #144d79;
+      margin: 18px 0 12px 0;
+      font-size: 1.2em;
+      text-align: left;
+      font-weight: 600;
+    }
+    .charts-flex {
+      display: flex;
+      gap: 30px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .chart-card {
+      background: rgba(235,244,255,0.82);
+      border-radius: 13px;
+      box-shadow: 0 1.5px 8px #b2d0f7a0;
+      padding: 20px;
+      flex: 1 1 350px;
+      min-width: 340px;
+      max-width: 470px;
+    }
+    .recommend-box {
+      background: linear-gradient(87deg, #e8f0fa 80%, #d6e2fa 100%);
+      border-radius: 13px;
+      padding: 25px;
+      margin-top: 24px;
+      box-shadow: 0 2px 11px #bbcaf17a;
+      color: #205079;
+      font-size: 1.1em;
+      font-weight: 450;
+    }
+    @media (max-width: 900px) {
+      .charts-flex { flex-direction: column; }
+      .metrics-row { flex-direction: column; }
+      .metric-card { margin-bottom: 10px; }
+    }
   </style>
 </head>
 <body>
-  <img id="logo" src="https://upload.wikimedia.org/wikipedia/commons/3/36/Boeing_full_logo.svg" />
+  <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/Boeing_full_logo.svg" class="logo-bg" alt="Boeing watermark" />
   <div class="container">
     <h1>Digital Oversight Dashboard</h1>
-    <p style="text-align:center; color:#34495e; font-size:18px;">Forecast & Risk Overview</p>
-    <hr>
+    <div class="subtitle">Forecast & Risk Overview</div>
+    <hr style='border:1px solid #b6c2d1; width:55%; margin:auto;'>
+
     <!-- KPI Metrics -->
-    <div id="metrics"></div>
-    <h2>📊 Forecast & Risk Charts</h2>
-    <div id="gap-chart"></div>
-    <div id="risk-chart"></div>
-    <hr>
-    <h2>✅ Recommendations</h2>
-    <div id="recommendations"></div>
+    <div class="metrics-row" id="metrics"></div>
+
+    <div class="charts-flex">
+      <div class="chart-card">
+        <div class="chart-title">Forecast Gap Over Time</div>
+        <div id="gap-chart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Risk Levels</div>
+        <div id="risk-chart"></div>
+      </div>
+    </div>
+
+    <div class="recommend-box" id="recommendations"></div>
   </div>
   <script>
     // Example data mimicking your CSV for demo
@@ -52,20 +143,18 @@
     var yearHighRisk = data[data.findIndex(r=>r.Risk_Score===maxRisk)].Year;
     var totalOrders = data.reduce((sum,r)=>sum+r.Orders,0);
     document.getElementById('metrics').innerHTML = `
-      <div style="display:flex;justify-content:space-around;font-size:1.1em;margin:16px 0;">
-        <div><b>Total Predicted Gap:</b> ${totalGap}</div>
-        <div><b>Max Risk Score:</b> ${maxRisk}</div>
-        <div><b>Year with Highest Risk:</b> ${yearHighRisk}</div>
-        <div><b>Total Orders:</b> ${totalOrders}</div>
-      </div>
+      <div class="metric-card"><div>Total Predicted Gap</div><b>${totalGap}</b></div>
+      <div class="metric-card"><div>Max Risk Score</div><b>${maxRisk}</b></div>
+      <div class="metric-card"><div>Year with Highest Risk</div><b>${yearHighRisk}</b></div>
+      <div class="metric-card"><div>Total Orders</div><b>${totalOrders}</b></div>
     `;
     // Forecast Gap Chart
     Plotly.newPlot('gap-chart', [{
       x: data.map(r=>r.Year),
       y: data.map(r=>r.Predicted_Gap),
-      type:'scatter', mode:'lines+markers', marker:{color:'red'},
+      type:'scatter', mode:'lines+markers', marker:{color:'#1759ab',size:9},
       text: data.map(r=>`${r.Risk_Level}`), name:'Predicted Gap'
-    }], {title:'Forecasted Gap by Year', template:'plotly_white'});
+    }], {title:'', paper_bgcolor:'#ebf4ff', plot_bgcolor:'#ebf4ff', margin:{l:50,r:35,t:10,b:45}, template:'plotly_white'});
     // Risk Score Bar Chart
     Plotly.newPlot('risk-chart', [{
       x: data.map(r=>r.Year),
@@ -77,12 +166,12 @@
         if(r.Risk_Level==='Medium')return '#f39c12';
         return '#2ecc71'})},
       name:'Risk Score'
-    }], {title:'Risk Scores by Year', template:'plotly_white'});
+    }], {title:'', paper_bgcolor:'#ebf4ff', plot_bgcolor:'#ebf4ff', margin:{l:50,r:30,t:10,b:45}, template:'plotly_white'});
     // Recommendations
     var highGapYears = data.filter(r=>r.Predicted_Gap>300).map(r=>r.Year);
     var rec = '';
     if(highGapYears.length)
-      rec += `- ⚠️ High predicted gaps detected in ${highGapYears.join(", ")} — prioritize supplier oversight.<br>`;
+      rec += `- ⚠️ High predicted gaps detected in <b>${highGapYears.join(", ")}</b> — prioritize supplier oversight.<br>`;
     else
       rec += "- ✅ Predicted gaps are within manageable range.<br>";
     rec += "- Integrate digital telemetry for predictive monitoring.<br>" +
