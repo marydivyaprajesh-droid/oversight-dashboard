@@ -1,0 +1,94 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Digital Oversight Dashboard</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(to bottom right, #f5f6fa, #ffffff);
+      margin: 0;
+      padding: 0;
+    }
+    #logo {
+      position: fixed;
+      top: 0; right: 0; opacity: 0.08; width: 20vw; z-index: 0;
+    }
+    .container { max-width: 900px; margin: 40px auto; padding: 24px; background: #fff; border-radius: 12px; box-shadow: 0 6px 32px #aaa2; }
+    h1 { color: #0a3d62; text-align: center; }
+    hr { border: 1px solid #dcdde1; width:50%; margin:auto; }
+  </style>
+</head>
+<body>
+  <img id="logo" src="https://upload.wikimedia.org/wikipedia/commons/3/36/Boeing_full_logo.svg" />
+  <div class="container">
+    <h1>Digital Oversight Dashboard</h1>
+    <p style="text-align:center; color:#34495e; font-size:18px;">Forecast & Risk Overview</p>
+    <hr>
+    <!-- KPI Metrics -->
+    <div id="metrics"></div>
+    <h2>📊 Forecast & Risk Charts</h2>
+    <div id="gap-chart"></div>
+    <div id="risk-chart"></div>
+    <hr>
+    <h2>✅ Recommendations</h2>
+    <div id="recommendations"></div>
+  </div>
+  <script>
+    // Example data mimicking your CSV for demo
+    var data = [
+      {Year:2022, Risk_Level:'Low', Predicted_Gap:100, Orders:50, PlannedOutput:200, ActualOutput:190, Backlog:15},
+      {Year:2023, Risk_Level:'Medium', Predicted_Gap:350, Orders:70, PlannedOutput:220, ActualOutput:210, Backlog:55},
+      {Year:2024, Risk_Level:'High', Predicted_Gap:440, Orders:60, PlannedOutput:250, ActualOutput:210, Backlog:90},
+      {Year:2025, Risk_Level:'Medium', Predicted_Gap:250, Orders:55, PlannedOutput:260, ActualOutput:230, Backlog:85}
+    ];
+    // Risk mapping
+    var riskMapping = {Low:1, Medium:2, High:3};
+    data.forEach(row => row.Risk_Score = riskMapping[row.Risk_Level]);
+    // KPI Metrics
+    var totalGap = data.reduce((sum, r) => sum+r.Predicted_Gap,0);
+    var maxRisk = Math.max(...data.map(r=>r.Risk_Score));
+    var yearHighRisk = data[data.findIndex(r=>r.Risk_Score===maxRisk)].Year;
+    var totalOrders = data.reduce((sum,r)=>sum+r.Orders,0);
+    document.getElementById('metrics').innerHTML = `
+      <div style="display:flex;justify-content:space-around;font-size:1.1em;margin:16px 0;">
+        <div><b>Total Predicted Gap:</b> ${totalGap}</div>
+        <div><b>Max Risk Score:</b> ${maxRisk}</div>
+        <div><b>Year with Highest Risk:</b> ${yearHighRisk}</div>
+        <div><b>Total Orders:</b> ${totalOrders}</div>
+      </div>
+    `;
+    // Forecast Gap Chart
+    Plotly.newPlot('gap-chart', [{
+      x: data.map(r=>r.Year),
+      y: data.map(r=>r.Predicted_Gap),
+      type:'scatter', mode:'lines+markers', marker:{color:'red'},
+      text: data.map(r=>`${r.Risk_Level}`), name:'Predicted Gap'
+    }], {title:'Forecasted Gap by Year', template:'plotly_white'});
+    // Risk Score Bar Chart
+    Plotly.newPlot('risk-chart', [{
+      x: data.map(r=>r.Year),
+      y: data.map(r=>r.Risk_Score),
+      type:'bar',
+      text: data.map(r=>r.Risk_Score), textposition:'auto',
+      marker:{color:data.map(r=>{
+        if(r.Risk_Level==='High')return '#c0392b';
+        if(r.Risk_Level==='Medium')return '#f39c12';
+        return '#2ecc71'})},
+      name:'Risk Score'
+    }], {title:'Risk Scores by Year', template:'plotly_white'});
+    // Recommendations
+    var highGapYears = data.filter(r=>r.Predicted_Gap>300).map(r=>r.Year);
+    var rec = '';
+    if(highGapYears.length)
+      rec += `- ⚠️ High predicted gaps detected in ${highGapYears.join(", ")} — prioritize supplier oversight.<br>`;
+    else
+      rec += "- ✅ Predicted gaps are within manageable range.<br>";
+    rec += "- Integrate digital telemetry for predictive monitoring.<br>" +
+           "- Add automated alerts for suppliers exceeding risk thresholds.<br>" +
+           "- Focus on years with high Risk Score for proactive intervention.";
+    document.getElementById('recommendations').innerHTML = rec;
+  </script>
+</body>
+</html>
